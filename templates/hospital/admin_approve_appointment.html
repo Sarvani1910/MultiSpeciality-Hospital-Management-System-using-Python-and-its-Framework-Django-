@@ -1,0 +1,69 @@
+{% extends 'hospital/admin_base.html' %}
+{% block content %}
+
+<head>
+  <!-- Add your existing styles and scripts -->
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      $('#calendar').fullCalendar({
+        // Your existing FullCalendar options...
+        select: function (start, end) {
+          var selectedDate = moment(start).format('YYYY-MM-DD');
+          console.log('Selected Date:', selectedDate);
+          $('#selected-date-for-approval').val(selectedDate);
+        }
+      });
+    });
+  </script>
+</head>
+
+<div class="container">
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <h6 class="panel-title">Appointment Approvals Required</h6>
+    </div>
+    <form method="post" action="{% url 'admin_process_approvals' %}">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="calendar">Select Date:</label>
+        <div id="calendar"></div>
+        <input type="hidden" id="selected-date-for-approval" name="selected_date" value="">
+      </div>
+      <table class="table table-hover" id="dev-table">
+        <thead>
+          <tr>
+            <th>Doctor Name</th>
+            <th>Patient Name</th>
+            <th>Description</th>
+            <th>Date</th>
+            <th>Approve</th>
+            <th>Reject</th>
+          </tr>
+        </thead>
+        {% for a in appointments %}
+          <tr>
+            <td>{{ a.doctorName }}</td>
+            <td>{{ a.patientName }}</td>
+            <td>{{ a.description }}</td>
+            <td>{{ a.appointmentDate }}</td>
+            <td>
+              <a class="btn btn-primary btn-xs" href="{% url 'approve-appointment' a.id  %}">
+                <span class="glyphicon glyphicon-ok"></span>
+              </a>
+            </td>
+            <td>
+              <a class="btn btn-danger btn-xs" href="{% url 'reject-appointment' a.id  %}">
+                <span class="glyphicon glyphicon-trash"></span>
+              </a>
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+      <button type="submit" class="btn btn-success">Process Approvals</button>
+    </form>
+  </div>
+</div>
+
+{% endblock content %}
+
